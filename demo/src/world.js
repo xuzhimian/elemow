@@ -680,13 +680,14 @@ export class World {
       mom.root.position.set(p.x - 1.2, 0, p.z + 2.2);
       mom.root.rotation.y = Math.PI * 0.8;
       this.storyGroup.add(mom.root);
+      this.storyModels = [mom];
       [0, 1].forEach((i) => {
-        const k = createCatModel({ ...momDef, colors: { ...momDef.colors, body: i ? '#E39A52' : '#9A9086' } }, { kitten: true });
+        const k = createCatModel({ ...momDef, artId: i ? 'kitten-orange' : 'kitten-gray', colors: { ...momDef.colors, body: i ? '#E39A52' : '#9A9086' } }, { kitten: true });
         k.root.position.set(p.x - 3 - i * 1.3, 0, p.z + 2.6 + i * 0.6);
         k.root.rotation.y = Math.PI * (0.6 + i * 0.4);
         this.storyGroup.add(k.root);
+        this.storyModels.push(k);
       });
-      this.storyModels = [mom];
     }
   }
 

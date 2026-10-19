@@ -2,6 +2,7 @@
 import { CATS, CAT_BY_ID, ORDER_TYPES, SHOP_ITEMS, EQUIP_NAMES, STORY, SHIFT, ENERGY_LOW, MAX_PENDING } from './data.js';
 import { PLACE_BY_ID, STATION } from './places.js';
 import { catAvatar } from './catModel.js';
+import { catArt, stationArt } from './catArt.js';
 import { ICONS, GOODS_ICON, EVENT_ICON } from './icons.js';
 import { esc, fmtSec, fmtClock, fmtMeters } from './util.js';
 import { famLevel, FAM_NAMES } from './game.js';
@@ -869,11 +870,12 @@ export class UI {
         <div class="mc-kicker">配送站 · 固定布局 · 三个升级点</div>
         <h2>${ICONS.home} 喵喵配送站 <span class="coins">${ICONS.coin}${m.coins} 鱼干币</span></h2>
         <div class="station-scene">
-          <div class="st-window"></div>
-          <div class="st-shelf"><i style="background:#87977a"></i><i style="background:#c9962e"></i><i style="background:#87977a"></i><i style="background:#8fa8bd"></i>${m.items.jar ? '<b class="jar"></b>' : ''}${m.items.raincoat ? '<b class="coat"></b>' : ''}</div>
-          ${m.furniture.postcard ? '<div class="st-postcard" title="猫妈妈的明信片">明信片</div>' : ''}
-          <div class="st-cats">${cats.map((c) => `<div class="st-cat"><img src="${av(c.id)}" alt=""><span>${c.def.name}</span></div>`).join('')}</div>
-          ${m.furniture.box ? '<div class="st-box" title="纸箱窝">纸箱窝</div>' : ''}
+          <img class="station-backdrop" src="${stationArt}" alt="晨光中的配送站，木质柜台、装备架与休息角" fetchpriority="high">
+          <div class="st-caption"><b>街角的小小配送站</b><span>休息一下，再出发。</span></div>
+          <div class="st-equipment" aria-label="配送站装备">${m.items.jar ? '<span>密封罐 ×' + m.items.jar + '</span>' : ''}${m.items.raincoat ? '<span>雨披 ×' + m.items.raincoat + '</span>' : ''}${m.upgrades.bed ? '<span>软垫窝已升级</span>' : ''}</div>
+          ${m.furniture.postcard ? '<div class="st-postcard" title="猫妈妈的明信片">猫妈妈的明信片</div>' : ''}
+          <div class="st-cats">${cats.map((c) => `<div class="st-cat" style="--cat:${c.def.route}"><img src="${catArt(c.id).sprite}" alt="${esc(c.def.name)}" decoding="async"><span>${esc(c.def.name)} · ${c.state === 'idle' ? '站内休息' : '配送中'}</span></div>`).join('')}</div>
+          ${m.furniture.box ? '<div class="st-box" title="纸箱窝加成已生效">纸箱窝已安置</div>' : ''}
         </div>
         <div class="station-areas">
           <div class="area"><h4>${ICONS.bed}休息窝</h4>${item('bed')}<p class="muted small">站内休息：每秒恢复 ${(2.2 * (m.upgrades.bed ? 1.6 : 1) * (m.furniture.box ? 1.1 : 1)).toFixed(1)} 精力${m.furniture.box ? '（含纸箱窝加成）' : ''}。班次结束全员恢复。</p></div>
@@ -907,7 +909,7 @@ export class UI {
       `<div class="modal-card story-card stage-${stage}">
         <div class="mc-kicker">${ICONS.paw} 熟客故事 · ${esc(STORY.title)}</div>
         <h2>${esc(data.title)}</h2>
-        <div class="story-door"><div class="door"></div><div class="mat">${stage >= 1 ? '<i></i><i></i><i></i>' : ''}</div>${stage >= 2 ? '<div class="note">谢谢</div>' : ''}</div>
+        <div class="story-door">${stage >= 3 ? `<div class="story-family"><img src="${catArt('mom').sprite}" alt="猫妈妈"><img src="${catArt('kitten-gray').sprite}" alt="灰色幼猫"><img src="${catArt('kitten-orange').sprite}" alt="橘色幼猫"></div>` : ''}<div class="door"></div><div class="mat">${stage >= 1 ? '<i></i><i></i><i></i>' : ''}</div>${stage >= 2 ? '<div class="note">谢谢</div>' : ''}</div>
         <p class="story-text">${esc(data.reveal)}</p>
         <p class="muted small">配送员：${esc(cat.def.name)} · 故事首通奖励 +15 鱼干币${stage === 2 ? ' · 获得「猫妈妈的明信片」' : ''}</p>
         <div class="row-end"><button class="btn primary" data-close>继续</button></div>
@@ -919,7 +921,7 @@ export class UI {
     const def = CAT_BY_ID.mianmian;
     this.showModal(
       `<div class="modal-card mm-card">
-        <img class="mm-av" src="${av('mianmian')}" alt="">
+        <img class="mm-av character-portrait" src="${catArt('mianmian').sprite}" alt="布偶猫绵绵，背着雾蓝色配送包">
         <div class="mc-kicker">新同事加入</div>
         <h2>布偶猫「绵绵」<small>${esc(def.title)}</small></h2>
         <blockquote>送来的不只是晚饭，还有一小会儿陪伴。<br><small>工作记录：配送准时。返站稍晚。顾客心情有所好转。</small></blockquote>
@@ -945,7 +947,8 @@ export class UI {
     const fam = (sd) => `${FAM_NAMES[famLevel(cm.fam[sd])]}（${cm.fam[sd]} 单）`;
     this.showModal(
       `<div class="modal-card profile-card" style="--cat:${def.route}">
-        <div class="pf-head"><img src="${av(id)}" alt=""><div><div class="mc-kicker">${esc(def.breed)} · ${esc(def.title)}</div><h2>${esc(def.name)}</h2><p>${esc(def.personality)}</p></div></div>
+        <div class="pf-head"><img src="${av(id)}" alt="${esc(def.name)}头像"><div><div class="mc-kicker">${esc(def.breed)} · ${esc(def.title)}</div><h2>${esc(def.name)}</h2><p>${esc(def.personality)}</p></div></div>
+        <div class="profile-art"><img src="${catArt(id).sprite}" alt="${esc(def.name)}完整角色形象"></div>
         <div class="mm-grid">
           <div><b>速度系数</b>${def.speed.toFixed(2)}</div><div><b>负重上限</b>${def.capacity}</div>
           <div><b>信任</b>${cm.trust}</div><div><b>累计配送</b>${cm.delivered} 单</div>

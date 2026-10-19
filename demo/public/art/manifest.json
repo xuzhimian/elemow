@@ -1,0 +1,107 @@
+{
+  "generated": "2026-10-19",
+  "style": "Japanese cozy watercolor / gouache",
+  "cats": {
+    "dundun": {
+      "source": "exec-aa70f8cf-5528-4fbf-b48f-aebecc6ec90c.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "aspect": 1.5,
+      "avatarCrop": {
+        "left": 880,
+        "top": 90,
+        "width": 510,
+        "height": 510
+      }
+    },
+    "shandian": {
+      "source": "exec-a747814d-2762-45aa-b583-c655739c3b56.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "aspect": 1.5,
+      "avatarCrop": {
+        "left": 895,
+        "top": 70,
+        "width": 510,
+        "height": 510
+      }
+    },
+    "laoban": {
+      "source": "exec-58e0755d-10cc-405d-a97b-d912a01d5791.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "aspect": 1.5,
+      "avatarCrop": {
+        "left": 880,
+        "top": 90,
+        "width": 510,
+        "height": 510
+      }
+    },
+    "mianmian": {
+      "source": "exec-c43d26ae-e8b0-43c5-b0b5-fb485d5b956a.png",
+      "sourceSize": [
+        1374,
+        1145
+      ],
+      "aspect": 1.2,
+      "avatarCrop": {
+        "left": 850,
+        "top": 140,
+        "width": 500,
+        "height": 500
+      }
+    },
+    "mom": {
+      "source": "exec-3a5a3b29-2546-4793-94a8-3518b4fe518e.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "aspect": 1.5,
+      "avatarCrop": {
+        "left": 900,
+        "top": 60,
+        "width": 510,
+        "height": 510
+      }
+    },
+    "kitten-gray": {
+      "source": "exec-97a88316-6684-4fa6-a2a5-f1ead0915d98.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "aspect": 1.5,
+      "avatarCrop": {
+        "left": 840,
+        "top": 30,
+        "width": 560,
+        "height": 560
+      }
+    },
+    "kitten-orange": {
+      "source": "exec-d180e5b4-5cc8-46db-8d4d-ec879c1f88b2.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "aspect": 1.5,
+      "avatarCrop": {
+        "left": 840,
+        "top": 30,
+        "width": 560,
+        "height": 560
+      }
+    }
+  },
+  "station": {
+    "source": "exec-ce0760ce-1600-4ba2-8906-68cd73be9105.png"
+  }
+}

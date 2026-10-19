@@ -351,7 +351,7 @@ export class TmapWorld {
       mk(mom.root, -3, 5);
       this.storyModels.push(mom);
       [0, 1].forEach((i) => {
-        const k = createCatModel({ ...momDef, colors: { ...momDef.colors, body: i ? '#E39A52' : '#9A9086' } }, { kitten: true });
+        const k = createCatModel({ ...momDef, artId: i ? 'kitten-orange' : 'kitten-gray', colors: { ...momDef.colors, body: i ? '#E39A52' : '#9A9086' } }, { kitten: true });
         k.root.rotation.y = Math.PI * (0.6 + i * 0.4);
         mk(k.root, -6 - i * 3, 6 + i * 2);
         this.storyModels.push(k);
