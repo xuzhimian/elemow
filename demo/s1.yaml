@@ -1,0 +1,112 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - generic [ref=f1e12]: 饿了喵
+      - generic [ref=f1e13]: Hungry Meow · 原型 Demo
+    - generic [ref=f1e14]:
+      - generic [ref=f1e15]:
+        - generic [ref=f1e43]: 第 1 班
+        - generic [ref=f1e44]: 未营业
+      - generic [ref=f1e16]: 晴
+      - generic [ref=f1e17]:
+        - generic [ref=f1e52]: "60"
+        - generic [ref=f1e53]: 鱼干币
+      - generic [ref=f1e18]:
+        - generic [ref=f1e57]: "3"
+        - generic [ref=f1e58]: 零食
+    - generic [ref=f1e19]:
+      - button "暂停" [ref=f1e59] [cursor=pointer]
+      - button "×1" [ref=f1e21] [cursor=pointer]
+      - button "配送站" [ref=f1e22] [cursor=pointer]
+      - button "音效开关" [ref=f1e23] [cursor=pointer]
+      - button "?" [ref=f1e27] [cursor=pointer]
+  - main [ref=f1e28]:
+    - generic [ref=f1e29]:
+      - generic [ref=f1e30]:
+        - generic [ref=f1e66]:
+          - link [ref=f1e67] [cursor=pointer]:
+            - /url: http://map.qq.com?ref=jsapi_v3
+          - generic [ref=f1e69]: ©2026 Tencent - GS(2026)1190号
+        - generic:
+          - generic [ref=f1e70] [cursor=pointer]: 喵喵配送站
+          - generic [ref=f1e77] [cursor=pointer]: 麦香面包坊
+          - generic [ref=f1e83] [cursor=pointer]: 桥边杂货
+          - generic [ref=f1e90] [cursor=pointer]: 胡须鱼汤
+          - generic [ref=f1e96] [cursor=pointer]: 晨光面包
+          - generic [ref=f1e102] [cursor=pointer]: 银杏小学
+          - generic [ref=f1e108] [cursor=pointer]: 钟楼书店
+          - generic [ref=f1e114] [cursor=pointer]: 松风公寓
+          - generic [ref=f1e120] [cursor=pointer]: 河畔写字楼
+          - generic [ref=f1e126] [cursor=pointer]: 东丘公园东门
+          - generic [ref=f1e132] [cursor=pointer]: 港湾小区
+          - generic [ref=f1e138] [cursor=pointer]: 云雀花店
+          - generic [ref=f1e144] [cursor=pointer]: 钟塔公寓
+          - generic [ref=f1e150] [cursor=pointer]: 巷尾小屋
+          - generic "纸箱点：可能触发停留事件"
+          - generic "纸箱点：可能触发停留事件"
+          - generic "复杂路口：闪电可能跑过头"
+          - generic "复杂路口：闪电可能跑过头"
+          - generic "复杂路口：闪电可能跑过头"
+          - generic "复杂路口：闪电可能跑过头"
+          - generic "复杂路口：闪电可能跑过头"
+          - generic "复杂路口：闪电可能跑过头"
+          - generic "复杂路口：闪电可能跑过头"
+      - generic [ref=f1e159]:
+        - generic [ref=f1e167]: 当前为「腾讯底图 + 示意路网」：地点检索失败。腾讯位置服务配额已用尽（WebServiceAPI 每日调用量达到上限）。可等次日配额重置，或在控制台为该 Key 申请更高配额后重试；此前可先用下面的备用模式试玩。配额恢复后刷新页面即可自动换成真实步行路网。
+        - button "知道了" [ref=f1e168] [cursor=pointer]
+      - generic:
+        - generic:
+          - generic: 配送站
+          - generic: 取货店
+          - generic: 顾客
+          - generic: 熟客
+          - generic: 复杂路口
+          - generic: 纸箱
+          - generic: 有遮蔽
+        - generic:
+          - generic: "N"
+          - generic: 25 m
+      - generic: 地图底图 © 腾讯位置服务 · 路网为示意网格（未接入真实路网数据） · 营业区域 1.79 km × 0.86 km（约 1.54 km²） · 店名与顾客名为虚构 · 时间为游戏模拟时间
+    - complementary [ref=f1e37]:
+      - generic [ref=f1e38]:
+        - generic [ref=f1e39]:
+          - heading "待接订单 0/4" [level=3] [ref=f1e169]:
+            - text: 待接订单
+            - generic [ref=f1e170]: 0/4
+          - generic [ref=f1e171]: 营业开始后，订单会持续出现。
+        - generic [ref=f1e41]:
+          - heading "配送员" [level=3] [ref=f1e42]
+          - generic [ref=f1e177]:
+            - generic [ref=f1e178] [cursor=pointer]:
+              - generic [ref=f1e179]:
+                - generic [ref=f1e180]:
+                  - generic [ref=f1e181]: 吨吨
+                  - generic [ref=f1e182]: 橘猫 · 速度 0.90 · 负重 0/4
+                - generic [ref=f1e183]: 站内待命
+                - generic [ref=f1e184]: 精力 100
+              - generic [ref=f1e187]:
+                - button "定位" [ref=f1e188]
+                - button "档案" [ref=f1e193]
+            - generic [ref=f1e198]:
+              - generic [ref=f1e199]: 狸花「闪电」
+              - generic [ref=f1e201]: 完成第一单后加入
+            - generic [ref=f1e203]:
+              - generic [ref=f1e204]: 三花「老板」
+              - generic [ref=f1e206]: 累计完成 3 单后加入，并开放拼送
+            - generic [ref=f1e208]:
+              - generic [ref=f1e209]: 布偶猫「绵绵」
+              - generic [ref=f1e211]: 熟客故事「还是放在门口就好」第二阶段完成后加入
+  - generic [ref=f1e213]:
+    - heading "饿了喵 Hungry Meow" [level=1] [ref=f1e215]:
+      - text: 饿了喵
+      - generic [ref=f1e216]: Hungry Meow
+    - paragraph [ref=f1e217]: 在一张认真严肃的街区地图上，经营一家由小猫负责配送的外卖站。玩家认真规划路线，小猫认真制造意外。
+    - generic [ref=f1e218]:
+      - generic [ref=f1e219]: 路网寻路 · 主干道只有两处过街点
+      - generic [ref=f1e224]: 四只性格各异的配送员
+      - generic [ref=f1e231]: 纸箱 · 观鸟 · 鱼香 · 摸猫 · 下雨
+      - generic [ref=f1e235]: 熟客故事与绵绵加入
+    - generic [ref=f1e238]:
+      - button "开始营业（含新手引导）" [ref=f1e239] [cursor=pointer]
+      - button "跳过教学：直接解锁三只初始猫与拼送" [ref=f1e240] [cursor=pointer]
+    - paragraph [ref=f1e241]: Demo 基于 PRD v0.3 P0 范围制作 · 腾讯地图底图 + 示意路网 · 进度保存在本地浏览器
