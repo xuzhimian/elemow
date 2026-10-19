@@ -1,0 +1,64 @@
+{
+  "generated": "2026-10-20",
+  "cell": 256,
+  "columns": 4,
+  "rows": [
+    "bird",
+    "box",
+    "fish",
+    "touch",
+    "stay",
+    "rain"
+  ],
+  "framesPerClip": 4,
+  "cats": {
+    "dundun": {
+      "source": "exec-eee8d296-cc60-452c-886f-6c2f7bfe22ea.png",
+      "cuts": [
+        0,
+        275,
+        518,
+        756,
+        1004,
+        1246,
+        1536
+      ]
+    },
+    "shandian": {
+      "source": "exec-dfa3a44f-1dee-4d01-8a24-5717ae7b70f4.png",
+      "cuts": [
+        0,
+        284,
+        538,
+        774,
+        1026,
+        1250,
+        1536
+      ]
+    },
+    "laoban": {
+      "source": "exec-66b0baef-83b3-429b-a46d-f04c2f9578ce.png",
+      "cuts": [
+        0,
+        301,
+        553,
+        786,
+        1030,
+        1263,
+        1536
+      ]
+    },
+    "mianmian": {
+      "source": "exec-29d45142-fbe3-4445-b193-ec041925481a.png",
+      "cuts": [
+        0,
+        267,
+        512,
+        746,
+        991,
+        1230,
+        1536
+      ]
+    }
+  }
+}

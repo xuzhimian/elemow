@@ -3,6 +3,7 @@ import { CATS, CAT_BY_ID, ORDER_TYPES, SHOP_ITEMS, EQUIP_NAMES, STORY, SHIFT, EN
 import { PLACE_BY_ID, STATION } from './places.js';
 import { catAvatar } from './catModel.js';
 import { catArt, stationArt } from './catArt.js';
+import { EventAnimation } from './eventAnimation.js';
 import { ICONS, GOODS_ICON, EVENT_ICON } from './icons.js';
 import { esc, fmtSec, fmtClock, fmtMeters } from './util.js';
 import { famLevel, FAM_NAMES } from './game.js';
@@ -64,10 +65,17 @@ export class UI {
     });
     $('#btn-station').addEventListener('click', () => this.showStation());
     $('#btn-help').addEventListener('click', () => this.showHelp());
-    $('#btn-sound').addEventListener('click', (e) => {
-      this.sfx.enabled = !this.sfx.enabled;
-      e.currentTarget.classList.toggle('off', !this.sfx.enabled);
-    });
+    $('#btn-sound').addEventListener('click', () => this.showAudioSettings());
+    const syncAudio = () => {
+      const button = $('#btn-sound');
+      button.classList.toggle('off', !this.sfx.enabled && !this.sfx.musicEnabled);
+      button.title = '音乐与音效设置';
+      button.setAttribute('aria-label', '音乐与音效设置');
+      const status = this.modalEl.querySelector('[data-audio-status]');
+      if (status) status.textContent = this.sfx.musicStatus;
+    };
+    this.sfx.addEventListener('change', syncAudio);
+    syncAudio();
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && !this.modalOpen && !(e.target instanceof HTMLInputElement)) {
         e.preventDefault();
@@ -639,11 +647,15 @@ export class UI {
     const g = this.game;
     const ev = g.eventQueue[0];
     if (!ev) {
+      this.eventAnimation?.destroy();
+      this.eventAnimation = null;
       this.eventEl.hidden = true;
       this.shownEventId = null;
       return;
     }
     if (this.shownEventId === ev.id) return;
+    this.eventAnimation?.destroy();
+    this.eventAnimation = null;
     this.shownEventId = ev.id;
     const cat = ev.catId ? g.cats[ev.catId] : null;
     if (cat) this.world.focus(cat.pos.x, cat.pos.z);
@@ -670,6 +682,7 @@ export class UI {
           <div><div class="ev-title">${esc(ev.title)}</div>${cat ? `<div class="ev-who"><img src="${av(cat.id)}" alt="">${esc(cat.def.name)} · ${esc(cat.def.breed)}</div>` : '<div class="ev-who">全局状态 · 不为每只猫单独弹窗</div>'}</div>
           <span class="ev-paused">${ICONS.pause}已暂停</span>
         </div>
+        <div class="event-film-host"></div>
         <div class="ev-lines">${ev.lines.map((l) => `<p>${esc(l)}</p>`).join('')}</div>
         ${etaHtml}
         ${ev.note ? `<div class="ev-note">${esc(ev.note)}</div>` : ''}
@@ -679,6 +692,10 @@ export class UI {
         ${ev.tip ? `<div class="ev-tip">${ICONS.info}${esc(ev.tip)}</div>` : ''}
       </div>`;
     this.eventEl.hidden = false;
+    this.eventAnimation = new EventAnimation(this.eventEl.querySelector('.event-film-host'), {
+      kind: ev.kind,
+      catIds: cat ? [cat.id] : g.unlockedCats().map((c) => c.id),
+    });
     this.eventEl.querySelectorAll('.ev-opt').forEach((b) =>
       b.addEventListener('click', () => {
         this.sfx.play('click');
@@ -960,6 +977,33 @@ export class UI {
         <ul class="notes">${def.stories.map(([need, t]) => (cm.trust >= need ? `<li>${esc(t)}</li>` : `<li class="locked">信任达到 ${need} 后解锁</li>`)).join('')}</ul>
         <div class="row-end"><button class="btn primary" data-close>关闭</button></div>
       </div>`,
+    );
+  }
+
+  showAudioSettings() {
+    const audio = this.sfx;
+    audio.ensure();
+    this.showModal(
+      `<div class="modal-card small audio-settings">
+        <div class="mc-kicker">街区的声音</div>
+        <h2>音乐与音效</h2>
+        <p class="music-credit">街角的慢时光<small>原创钢琴与拨弦 · 轻轻陪你送完这一班</small></p>
+        <label class="audio-toggle"><span>背景音乐</span><input type="checkbox" data-music ${audio.musicEnabled ? 'checked' : ''}></label>
+        <label class="audio-volume" for="music-volume">音乐音量 <output data-volume>${Math.round(audio.musicVolume * 100)}%</output></label>
+        <input id="music-volume" type="range" min="0" max="100" value="${Math.round(audio.musicVolume * 100)}" aria-label="背景音乐音量">
+        <label class="audio-toggle"><span>操作与事件音效</span><input type="checkbox" data-effects ${audio.enabled ? 'checked' : ''}></label>
+        <p class="muted small" data-audio-status role="status">${esc(audio.musicStatus)}</p>
+        <p class="muted small">首次点击后开始播放；切到后台暂停。设置会保存在本机。</p>
+        <div class="row-end"><button class="btn primary" data-close>完成</button></div>
+      </div>`,
+      (root) => {
+        root.querySelector('[data-music]').addEventListener('change', (e) => audio.setMusicEnabled(e.target.checked));
+        root.querySelector('[data-effects]').addEventListener('change', (e) => audio.setEffectsEnabled(e.target.checked));
+        root.querySelector('#music-volume').addEventListener('input', (e) => {
+          audio.setMusicVolume(Number(e.target.value) / 100);
+          root.querySelector('[data-volume]').textContent = `${e.target.value}%`;
+        });
+      },
     );
   }
 

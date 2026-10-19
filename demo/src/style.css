@@ -2131,3 +2131,51 @@ blockquote small {
 @media (prefers-reduced-motion: reduce) {
   .tc-cats img, .modal-card { animation: none; }
 }
+
+/* Generated event films: their own clock, so delivery remains paused. */
+#event-card {
+  width: min(520px, calc(100vw - var(--side-w) - 32px));
+  max-height: calc(100dvh - 88px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 18px;
+}
+.event-film {
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid #e7d9c4;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 60%, #f3e5ce 0, #fbf6ed 70%);
+}
+.event-film[data-kind='rain'] { background: linear-gradient(150deg, #e9efef, #f4eadb); }
+.event-film[data-kind='bird'] { background: linear-gradient(150deg, #eef1e4, #fbf5ea); }
+.event-film[data-kind='touch'], .event-film[data-kind='stay'] { background: linear-gradient(150deg, #f1e9df, #fbf6ed); }
+.film-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px 0; }
+.film-toolbar > span { font-size: 10px; letter-spacing: 1px; color: #887965; }
+.film-toolbar > div { display: flex; gap: 8px; }
+.film-control { border: 0; background: transparent; padding: 5px 3px; color: #6e5f4f; font-size: 11px; cursor: pointer; }
+.film-control:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; border-radius: 4px; }
+.film-control:disabled { opacity: 0.4; cursor: default; }
+.film-canvas { display: block; width: 100%; height: auto; max-height: 182px; object-fit: contain; }
+.film-caption { margin: 0; padding: 0 12px 5px; text-align: center; font-size: 12px; line-height: 1.6; color: #665846; }
+.film-status { display: block; text-align: center; font-size: 10px; color: #91816c; padding: 0 10px 8px; }
+.ev-opts { position: sticky; bottom: -14px; background: var(--card); padding: 6px 0; z-index: 1; }
+.audio-toggle { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px 0; border-top: 1px solid var(--line); }
+.audio-toggle input { width: 19px; height: 19px; accent-color: var(--sage-d); }
+.music-credit { color: #6c5948; font-family: 'Songti SC', 'Noto Serif SC', serif; }
+.music-credit small { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+.audio-volume { display: flex; justify-content: space-between; font-size: 12px; }
+.audio-volume output { min-width: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+#music-volume { width: 100%; margin: 12px 0 18px; accent-color: var(--sage-d); }
+@media (max-height: 650px) {
+  #event-card { bottom: 12px; max-height: calc(100dvh - 78px); }
+  .film-canvas { max-height: 105px; }
+  .ev-lines { font-size: 11px; line-height: 1.5; }
+}
+@media (max-width: 640px) {
+  #event-card { left: 50%; width: calc(100vw - 24px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #event-card { animation: none; }
+}
