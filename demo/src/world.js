@@ -171,7 +171,7 @@ export class World {
         const point = new THREE.Vector3(pos.x, 0.16, pos.z).project(this.camera);
         const x = (point.x + 1) * width / 2;
         const y = (1 - point.y) * height / 2;
-        const imageWidth = (POI_ART[place.id]?.width || 31.8) * scale;
+        const imageWidth = (POI_ART[place.id]?.width || 63.6) * scale;
         const markerHeight = imageWidth * 0.91 + 24;
         return x - imageWidth / 2 >= 14 && x + imageWidth / 2 <= width - 14 && y - markerHeight * 0.92 >= 14 && y + markerHeight * 0.08 <= height - 14;
       });
