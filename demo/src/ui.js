@@ -739,7 +739,7 @@ export class UI {
     const cont = m.started;
     this.showModal(
       `<div class="modal-card title-card">
-        <div class="tc-cats">${['dundun', 'shandian', 'laoban', 'mianmian'].map((id) => `<img src="${catAvatar(CAT_BY_ID[id], { gray: !m.cats[id].unlocked && id === 'mianmian' })}" alt="">`).join('')}</div>
+        <div class="tc-cats">${['dundun', 'shandian', 'laoban', 'mianmian'].map((id) => `<img src="${catAvatar(CAT_BY_ID[id])}" alt="">`).join('')}</div>
         <h1>饿了喵 <small>Hungry Meow</small></h1>
         <p class="tagline">在一张认真严肃的街区地图上，经营一家由小猫负责配送的外卖站。<br>玩家认真规划路线，小猫认真制造意外。</p>
         <div class="tc-points">
