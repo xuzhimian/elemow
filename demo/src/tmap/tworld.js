@@ -49,9 +49,8 @@ export class TmapWorld {
       // 个性化地图样式。想从「源头」而不是靠后期滤镜换配色，就在腾讯位置服务控制台
       // 做一套低饱和暖色样式，再用 VITE_TMAP_STYLE_ID 指过去（见 README）。
       mapStyleId: import.meta.env?.VITE_TMAP_STYLE_ID || 'style1',
-      // 刻意不要 point：腾讯原生 POI 图标是冷色调且极密，既盖掉我们自己的 18 个地点标签，
-      // 信息也重复。building3d 在 pitch:0 下几乎看不出立体，只会增加工程感，一并去掉。
-      baseMap: { type: 'vector', features: ['base', 'building2d', 'label'] },
+      // 使用 SDK 完整矢量底图；POI 插画是独立透明标注，不裁掉底图要素。
+      baseMap: { type: 'vector' },
     });
     this.map.fitBounds(bounds, { padding: 0 });
     this.bounds = bounds;
@@ -182,7 +181,12 @@ export class TmapWorld {
         const gl = self.gl;
         self.renderer.setViewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         self.renderer.clearDepth(); // 底图已写入深度缓冲，先清掉再画贴地的猫咪
-        self.renderer.render(self.scene, cam);
+        try {
+          self.renderer.render(self.scene, cam);
+        } finally {
+          // 与腾讯 SDK 共用上下文，归还时清理 Three 的 GL 状态，避免影响后续底图绘制。
+          self.renderer.resetState();
+        }
       },
     });
     this.layer.setLevel?.(LAYER_LEVEL);

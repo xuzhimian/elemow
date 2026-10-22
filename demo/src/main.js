@@ -194,12 +194,9 @@ if (hasKey()) {
       });
     });
 } else {
-  console.info(`[饿了喵] ${keyHint()} 使用灰盒街区模式。`);
-  try {
-    startGreybox();
-  } catch (err) {
-    fail(err);
-  }
+  fail(new Error(keyHint()), '请在 demo/.env.local 配置腾讯地图 Key，并重启开发服务器；部署时须在构建环境设置 VITE_TMAP_KEY 后重新构建。灰盒街区仅在手动选择后启动。');
+  bootTitle.textContent = '腾讯地图尚未配置';
+  boot.querySelector('[data-grid]').hidden = true;
 }
 
 // ---------------- 主循环 ----------------
