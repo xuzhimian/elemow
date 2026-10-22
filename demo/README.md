@@ -163,6 +163,17 @@ node tools/bake-road-network.mjs public/road-network.json --poi ~/Downloads/poi.
 
 对照截图确认：原生 POI 冷色噪音消失、绿意保留、水体转柔和淡蓝、17 个地点标签清晰；猫咪立绘用 `toneMapped: false` 的 Sprite，开关滤镜对照后层次完整且色调更融合；帧率 60.1 fps（关）对 60.2 fps（开），无性能损耗。另补齐了雨层、事件猫咪呼吸、提示条弹入的 `prefers-reduced-motion` 覆盖。
 
+## POI 水彩插画更新
+
+当前全部 **18 个游戏 POI** 已换成独立水彩建筑插画：配送站、四间取货店铺、住宅、学校、书店、公园入口、花店与巷尾小屋等。采用比真实比例更夸张的尺寸，灰盒与腾讯地图共用同一套资源。
+
+- 图片随地图适度缩放，地点名称独立显示；相关订单地点、悬停与键盘聚焦会突出展示。
+- 替代原圆点、立柱和配送站简易模型；实际锚点、道路、寻路和派单逻辑不变。
+- [查看 18 张素材与接入说明](public/art/poi/README.md)。本地预览地址：**http://localhost:5173/art/poi/index.html**（端口以 Vite 输出为准）。
+- 构建和灰盒浏览器交互检查通过；腾讯 DOM 投影路径通过地图适配器检查，实际 SDK 显示仍需在现有 Key 环境复核。
+
+![POI 插画地图预览](docs/poi-preview.webp)
+
 ## 操作
 
 - 拖动平移、滚轮缩放；点击右侧订单打开派单面板；点击猫咪头像定位。
@@ -194,6 +205,7 @@ demo/
     │   ├── gridGraph.js  示意路网（不消耗配额）
     │   └── tworld.js     腾讯地图渲染层（GLCustomLayer 猫咪、路线、标签、雨层）
     ├── eventAnimation.js 事件关键帧播放器（独立于配送时钟）
+    ├── poiArt.js       独立 POI 插画、按钮与显示尺寸
     ├── catArt.js       运行美术素材地址
     ├── catModel.js     水彩角色 Sprite 与头像
     ├── game.js         玩法模拟

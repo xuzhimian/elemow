@@ -77,7 +77,7 @@ export class UI {
     this.sfx.addEventListener('change', syncAudio);
     syncAudio();
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !this.modalOpen && !(e.target instanceof HTMLInputElement)) {
+      if (e.code === 'Space' && !this.modalOpen && !e.target.closest?.('button, input, select, textarea, [contenteditable="true"]')) {
         e.preventDefault();
         this.togglePause();
       }

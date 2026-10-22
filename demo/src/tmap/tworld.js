@@ -7,6 +7,7 @@ import { AREA, frame, viewBounds } from '../geo.js';
 import { STATION, SHOPS, CUSTOMERS } from '../places.js';
 import { ICONS } from '../icons.js';
 import { createCatModel } from '../catModel.js';
+import { createPoiLabel, setPoiScale } from '../poiArt.js';
 
 const CAT_SCALE = 3; // 猫咪模型放大倍数（真实地图下 1 场景单位 = 1 米，需要夸张才看得清）
 const LAYER_LEVEL = 9; // 自定义图层层级：必须高于底图，否则会被底图覆盖
@@ -48,7 +49,7 @@ export class TmapWorld {
       // 个性化地图样式。想从「源头」而不是靠后期滤镜换配色，就在腾讯位置服务控制台
       // 做一套低饱和暖色样式，再用 VITE_TMAP_STYLE_ID 指过去（见 README）。
       mapStyleId: import.meta.env?.VITE_TMAP_STYLE_ID || 'style1',
-      // 刻意不要 point：腾讯原生 POI 图标是冷色调且极密，既盖掉我们自己的 17 个地点标签，
+      // 刻意不要 point：腾讯原生 POI 图标是冷色调且极密，既盖掉我们自己的 18 个地点标签，
       // 信息也重复。building3d 在 pitch:0 下几乎看不出立体，只会增加工程感，一并去掉。
       baseMap: { type: 'vector', features: ['base', 'building2d', 'label'] },
     });
@@ -222,12 +223,7 @@ export class TmapWorld {
   buildPlaceLabels() {
     const all = [STATION, ...SHOPS, ...CUSTOMERS];
     all.forEach((p) => {
-      const el = document.createElement('div');
-      el.className = `place-label kind-${p.kind}`;
-      const icon = p.kind === 'station' ? ICONS.home : p.kind === 'shop' ? ICONS[p.goods] : p.kind === 'story' ? ICONS.paw : ICONS.door;
-      el.innerHTML = `<span class="pl-icon">${icon}</span><span class="pl-name"></span>`;
-      el.querySelector('.pl-name').textContent = p.name;
-      el.dataset.place = p.id;
+      const el = createPoiLabel(p);
       Object.assign(el.style, { position: 'absolute', left: '0', top: '0', pointerEvents: 'auto', willChange: 'transform' });
       this.labelRoot.appendChild(el);
       this.placeLabels.set(p.id, el);
@@ -394,8 +390,8 @@ export class TmapWorld {
   }
 
   makeViewBounds() {
-    // 四周留 80 m：地点标签向上偏移 140%，贴边的标签否则会被容器裁掉
-    const v = viewBounds(this.aspect(), 80);
+    // 四周留 160 m：为放大的地点插画保留余量，不改变任何实际锚点
+    const v = viewBounds(this.aspect(), 160);
     return new this.TMap.LatLngBounds(new this.TMap.LatLng(v.sw.lat, v.sw.lng), new this.TMap.LatLng(v.ne.lat, v.ne.lng));
   }
 
@@ -433,9 +429,10 @@ export class TmapWorld {
     const vk = `${c.lat.toFixed(6)},${c.lng.toFixed(6)},${this.map.getZoom().toFixed(3)},${this.map.getRotation()},${this.map.getPitch()},${w}x${h}`;
     if (vk !== this.viewKey) {
       this.viewKey = vk;
+      setPoiScale(this.labelRoot, Math.pow(2, (this.map.getZoom() - 16) * 0.22));
       const project = (pos, el, anchor) => {
         const pt = this.map.projectToContainer(this.toLatLng(pos));
-        const vis = pt.x >= -80 && pt.x <= w + 80 && pt.y >= -60 && pt.y <= h + 60;
+        const vis = pt.x >= -160 && pt.x <= w + 160 && pt.y >= -30 && pt.y <= h + 180;
         el.style.display = vis ? '' : 'none';
         if (vis) el.style.transform = `translate(-50%, ${anchor}) translate(${Math.round(pt.x)}px, ${Math.round(pt.y)}px)`;
       };
@@ -445,7 +442,7 @@ export class TmapWorld {
           el.style.display = 'none';
           continue;
         }
-        project(this.graph.placePos(p), el, '-140%');
+        project(this.graph.placePos(p), el, '-92%');
       }
       for (const d of this.decor) project(d.pos, d.el, '-50%');
     }

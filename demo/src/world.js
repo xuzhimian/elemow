@@ -8,6 +8,7 @@ import { STATION, SHOPS, CUSTOMERS } from './places.js';
 import { mulberry32 } from './util.js';
 import { ICONS } from './icons.js';
 import { createCatModel } from './catModel.js';
+import { createPoiLabel, setPoiScale, POI_ART } from './poiArt.js';
 
 const ROAD_W = 2.6;
 const CASING_W = 3.4;
@@ -86,7 +87,6 @@ export class World {
     this.graph = graph;
     this.routes = new Map();
     this.placeLabels = new Map();
-    this.placePins = new Map();
     this.catObjs = new Map();
     this.raining = false;
     this.rainMix = 0;
@@ -146,12 +146,40 @@ export class World {
 
     this.buildMap();
     this.buildPlaces();
+    this.fitPoiView();
     this.buildRain();
 
     this.storyGroup = new THREE.Group();
     this.scene.add(this.storyGroup);
 
     window.addEventListener('resize', () => this.resize());
+  }
+
+  fitPoiView() {
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
+    const direction = this.camera.position.clone().sub(this.controls.target).normalize();
+    let distance = this.camera.position.distanceTo(this.controls.target);
+    const all = [STATION, ...SHOPS, ...CUSTOMERS];
+    for (let attempt = 0; attempt < 20; attempt++) {
+      this.camera.position.copy(this.controls.target).addScaledVector(direction, distance);
+      this.camera.lookAt(this.controls.target);
+      this.camera.updateMatrixWorld();
+      const scale = Math.max(0.68, Math.min(1.28, Math.pow(210 / distance, 0.4)));
+      const fits = all.every((place) => {
+        const pos = this.graph.placePos(place);
+        const point = new THREE.Vector3(pos.x, 0.16, pos.z).project(this.camera);
+        const x = (point.x + 1) * width / 2;
+        const y = (1 - point.y) * height / 2;
+        const imageWidth = (POI_ART[place.id]?.width || 106) * scale;
+        const markerHeight = imageWidth * 0.91 + 24;
+        return x - imageWidth / 2 >= 14 && x + imageWidth / 2 <= width - 14 && y - markerHeight * 0.92 >= 14 && y + markerHeight * 0.08 <= height - 14;
+      });
+      if (fits || distance >= 450) break;
+      distance = Math.min(450, distance * 1.06);
+    }
+    this.controls.maxDistance = Math.max(this.controls.maxDistance, distance);
+    this.controls.update();
   }
 
   resize() {
@@ -470,58 +498,15 @@ export class World {
   // ---------------- 地点标记 ----------------
   buildPlaces() {
     const g = this.graph;
-    const pinColors = { station: '#D99A63', shop: '#B86750', customer: '#87977A', story: '#8C7AA8' };
-    const all = [STATION, ...SHOPS, ...CUSTOMERS.map((c) => ({ ...c, kind: c.story ? 'story' : 'customer' }))];
+    const all = [STATION, ...SHOPS, ...CUSTOMERS];
     all.forEach((p) => {
       const pos = g.placePos(p);
-      const color = pinColors[p.kind];
-      const grp = new THREE.Group();
-      const isStation = p.kind === 'station';
-      if (isStation) {
-        const yard = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 8.6), basic('#E6D5BA'));
-        yard.rotation.x = -Math.PI / 2;
-        yard.position.set(-1.4, 0.06, 2.1);
-        grp.add(yard);
-        const base = new THREE.Mesh(new THREE.BoxGeometry(5, 2.6, 4), new THREE.MeshLambertMaterial({ color: '#E9D7BC' }));
-        base.position.y = 1.3;
-        base.castShadow = true;
-        grp.add(base);
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(3.9, 1.8, 4), new THREE.MeshLambertMaterial({ color: '#B86750', flatShading: true }));
-        roof.position.y = 3.5;
-        roof.rotation.y = Math.PI / 4;
-        roof.scale.set(1, 1, 0.82);
-        roof.castShadow = true;
-        grp.add(roof);
-        const awn = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.15, 1.2), new THREE.MeshLambertMaterial({ color: '#87977A' }));
-        awn.position.set(0, 1.9, 2.4);
-        awn.rotation.x = 0.3;
-        grp.add(awn);
-      } else {
-        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.4, 6), new THREE.MeshLambertMaterial({ color: '#7B6B5C' }));
-        stem.position.y = 1.2;
-        grp.add(stem);
-        const head = new THREE.Mesh(new THREE.SphereGeometry(0.75, 14, 10), new THREE.MeshLambertMaterial({ color }));
-        head.position.y = 2.7;
-        head.castShadow = true;
-        grp.add(head);
-        const ring = new THREE.Mesh(new THREE.RingGeometry(0.8, 1.2, 20), basic(color, { transparent: true, opacity: 0.6 }));
-        ring.rotation.x = -Math.PI / 2;
-        ring.position.y = 0.09;
-        grp.add(ring);
-      }
-      grp.position.set(pos.x, 0, pos.z);
-      this.scene.add(grp);
-      this.placePins.set(p.id, grp);
-
-      const el = document.createElement('div');
-      el.className = `place-label kind-${p.kind}`;
-      const icon = isStation ? ICONS.home : p.kind === 'shop' ? ICONS[p.goods] : p.kind === 'story' ? ICONS.paw : ICONS.door;
-      el.innerHTML = `<span class="pl-icon">${icon}</span><span class="pl-name"></span>`;
-      el.querySelector('.pl-name').textContent = p.name;
-      el.dataset.place = p.id;
-      const o = new CSS2DObject(el);
-      o.position.set(pos.x, isStation ? 6 : 4.2, pos.z);
-      this.scene.add(o);
+      // The illustration replaces the old spheres/stems and station mesh.
+      const el = createPoiLabel(p);
+      const marker = new CSS2DObject(el);
+      marker.center.set(0.5, 0.92);
+      marker.position.set(pos.x, 0.16, pos.z);
+      this.scene.add(marker);
       this.placeLabels.set(p.id, el);
     });
   }
@@ -529,10 +514,6 @@ export class World {
   highlightPlaces(ids = []) {
     const set = new Set(ids);
     for (const [id, el] of this.placeLabels) el.classList.toggle('hl', set.has(id));
-    for (const [id, grp] of this.placePins) {
-      const s = set.has(id) ? 1.35 : 1;
-      grp.scale.setScalar(s);
-    }
   }
 
   // ---------------- 猫咪 ----------------
@@ -724,6 +705,8 @@ export class World {
       }
     }
     this.controls.update();
+    const distance = this.camera.position.distanceTo(this.controls.target);
+    setPoiScale(this.labelRoot, Math.pow(210 / Math.max(1, distance), 0.4));
     this.updateRain(dt);
     if (this.storyModels) this.storyModels.forEach((m) => m.update(dt, 'idle'));
     this.renderer.render(this.scene, this.camera);

@@ -1,0 +1,186 @@
+{
+  "generated": "2026-10-22",
+  "style": "Japanese cozy watercolor architectural miniatures",
+  "places": {
+    "station": {
+      "source": "exec-7e6a8540-a8a6-46d8-ba79-bd1e462d74f7.png",
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "station.webp"
+    },
+    "bakery": {
+      "source": "exec-7e6a8540-a8a6-46d8-ba79-bd1e462d74f7.png",
+      "crop": {
+        "left": 512,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "bakery.webp"
+    },
+    "grocery": {
+      "source": "exec-7e6a8540-a8a6-46d8-ba79-bd1e462d74f7.png",
+      "crop": {
+        "left": 1024,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "grocery.webp"
+    },
+    "fishsoup": {
+      "source": "exec-7e6a8540-a8a6-46d8-ba79-bd1e462d74f7.png",
+      "crop": {
+        "left": 0,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "fishsoup.webp"
+    },
+    "morning": {
+      "source": "exec-7e6a8540-a8a6-46d8-ba79-bd1e462d74f7.png",
+      "crop": {
+        "left": 512,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "morning.webp"
+    },
+    "florist": {
+      "source": "exec-7e6a8540-a8a6-46d8-ba79-bd1e462d74f7.png",
+      "crop": {
+        "left": 1024,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "florist.webp"
+    },
+    "sakura": {
+      "source": "exec-b65629a6-c792-47ed-b299-f9b1743b6444.png",
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "sakura.webp"
+    },
+    "school": {
+      "source": "exec-b65629a6-c792-47ed-b299-f9b1743b6444.png",
+      "crop": {
+        "left": 512,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "school.webp"
+    },
+    "office": {
+      "source": "exec-b65629a6-c792-47ed-b299-f9b1743b6444.png",
+      "crop": {
+        "left": 1064,
+        "top": 0,
+        "width": 472,
+        "height": 512
+      },
+      "file": "office.webp"
+    },
+    "books": {
+      "source": "exec-b65629a6-c792-47ed-b299-f9b1743b6444.png",
+      "crop": {
+        "left": 0,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "books.webp"
+    },
+    "pine": {
+      "source": "exec-b65629a6-c792-47ed-b299-f9b1743b6444.png",
+      "crop": {
+        "left": 512,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "pine.webp"
+    },
+    "green": {
+      "source": "exec-b65629a6-c792-47ed-b299-f9b1743b6444.png",
+      "crop": {
+        "left": 1024,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "green.webp"
+    },
+    "riverside": {
+      "source": "exec-4b7f8f48-977d-4ac8-aa60-65586f461a42.png",
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "riverside.webp"
+    },
+    "parkeast": {
+      "source": "exec-4b7f8f48-977d-4ac8-aa60-65586f461a42.png",
+      "crop": {
+        "left": 512,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "parkeast.webp"
+    },
+    "harbor": {
+      "source": "exec-4b7f8f48-977d-4ac8-aa60-65586f461a42.png",
+      "crop": {
+        "left": 1024,
+        "top": 0,
+        "width": 512,
+        "height": 512
+      },
+      "file": "harbor.webp"
+    },
+    "slope": {
+      "source": "exec-4b7f8f48-977d-4ac8-aa60-65586f461a42.png",
+      "crop": {
+        "left": 0,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "slope.webp"
+    },
+    "tower": {
+      "source": "exec-4b7f8f48-977d-4ac8-aa60-65586f461a42.png",
+      "crop": {
+        "left": 512,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "tower.webp"
+    },
+    "alley": {
+      "source": "exec-4b7f8f48-977d-4ac8-aa60-65586f461a42.png",
+      "crop": {
+        "left": 1024,
+        "top": 512,
+        "width": 512,
+        "height": 512
+      },
+      "file": "alley.webp"
+    }
+  }
+}
