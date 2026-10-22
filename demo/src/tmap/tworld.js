@@ -3,7 +3,7 @@
 // 对外接口与 src/world.js（灰盒）保持一致，便于 main.js / ui.js 共用一套调度逻辑。
 
 import * as THREE from 'three';
-import { AREA, frame } from '../geo.js';
+import { AREA, frame, viewBounds } from '../geo.js';
 import { STATION, SHOPS, CUSTOMERS } from '../places.js';
 import { ICONS } from '../icons.js';
 import { createCatModel } from '../catModel.js';
@@ -35,7 +35,8 @@ export class TmapWorld {
     this.routesDirty = false;
     this.ready = false;
 
-    const bounds = new TMap.LatLngBounds(new TMap.LatLng(AREA.sw.lat, AREA.sw.lng), new TMap.LatLng(AREA.ne.lat, AREA.ne.lng));
+    // 视野边界按容器宽高比补齐营业区域，否则 boundary 会把较长一边挤出容器，边缘地点看不到
+    const bounds = this.makeViewBounds();
     this.map = new TMap.Map(container, {
       center: new TMap.LatLng(AREA.center.lat, AREA.center.lng),
       zoom: 16,
@@ -44,11 +45,20 @@ export class TmapWorld {
       viewMode: '3D',
       showControl: false,
       boundary: bounds,
-      mapStyleId: 'style1',
-      baseMap: { type: 'vector', features: ['base', 'building2d', 'building3d', 'point', 'label'] },
+      // 个性化地图样式。想从「源头」而不是靠后期滤镜换配色，就在腾讯位置服务控制台
+      // 做一套低饱和暖色样式，再用 VITE_TMAP_STYLE_ID 指过去（见 README）。
+      mapStyleId: import.meta.env?.VITE_TMAP_STYLE_ID || 'style1',
+      // 刻意不要 point：腾讯原生 POI 图标是冷色调且极密，既盖掉我们自己的 17 个地点标签，
+      // 信息也重复。building3d 在 pitch:0 下几乎看不出立体，只会增加工程感，一并去掉。
+      baseMap: { type: 'vector', features: ['base', 'building2d', 'label'] },
     });
-    this.map.fitBounds(bounds, { padding: 24 });
+    this.map.fitBounds(bounds, { padding: 0 });
     this.bounds = bounds;
+    this.viewAspect = this.aspect();
+
+    // 治愈画风滤镜（纯渲染层，不改任何地图数据）。cozy-tmap 额外启用底图调色。
+    const wrap = container.closest('#map-wrap');
+    if (wrap) wrap.classList.add('cozy', 'cozy-tmap');
 
     this.polyLayer = new TMap.MultiPolyline({ id: 'meow-routes', map: this.map, zIndex: 20, styles: {}, geometries: [] });
 
@@ -377,8 +387,27 @@ export class TmapWorld {
     return { px: m * pxPerM, label: m >= 1000 ? `${m / 1000} km` : `${m} m` };
   }
 
+  aspect() {
+    const w = this.container.clientWidth || 1;
+    const h = this.container.clientHeight || 1;
+    return w / h;
+  }
+
+  makeViewBounds() {
+    // 四周留 80 m：地点标签向上偏移 140%，贴边的标签否则会被容器裁掉
+    const v = viewBounds(this.aspect(), 80);
+    return new this.TMap.LatLngBounds(new this.TMap.LatLng(v.sw.lat, v.sw.lng), new this.TMap.LatLng(v.ne.lat, v.ne.lng));
+  }
+
   resize() {
     this.map.resize?.();
+    // 容器宽高比变了，补齐出来的视野边界也要跟着变，否则又会出现挤出容器的边
+    const a = this.aspect();
+    if (!this.viewAspect || Math.abs(a - this.viewAspect) > 0.01) {
+      this.viewAspect = a;
+      this.bounds = this.makeViewBounds();
+      this.map.setBoundary?.(this.bounds);
+    }
   }
 
   // ---------------- 每帧 ----------------

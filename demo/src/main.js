@@ -66,13 +66,14 @@ function beginLoading(title) {
 }
 
 async function tmapModules() {
-  const [discover, road, tworld, grid] = await Promise.all([
+  const [discover, road, tworld, grid, osm] = await Promise.all([
     import('./tmap/discover.js'),
     import('./tmap/roadGraph.js'),
     import('./tmap/tworld.js'),
     import('./tmap/gridGraph.js'),
+    import('./tmap/osmRoads.js'),
   ]);
-  return { ...discover, ...road, ...tworld, ...grid };
+  return { ...discover, ...road, ...tworld, ...grid, ...osm };
 }
 
 function mountTmap(TMap, graph, M, note) {
@@ -107,6 +108,33 @@ async function startTencent({ useBaked = true } = {}) {
   mountTmap(TMap, graph, M, `腾讯真实路网（POI ${found.poolSize} 个，路线请求 ${graph.stats.routes}，缓存 ${graph.stats.cached}，失败 ${graph.stats.failed}）`);
 }
 
+// 真实路网：优先用随项目发布的预烘焙数据，其次在线抓取。与腾讯底图对齐，不消耗 WebServiceAPI 配额。
+async function startOsm({ useBaked = true } = {}) {
+  beginLoading('正在加载腾讯底图…');
+  progress('加载地图脚本…');
+  const TMap = await loadTMap();
+  const M = await tmapModules();
+
+  if (useBaked) {
+    const baked = M.loadBakedGraph();
+    if (baked && baked.source === 'osm') {
+      mountTmap(TMap, baked, M, '真实路网（本地已固化）');
+      return;
+    }
+  }
+
+  progress('正在载入真实路网…');
+  const local = await M.loadLocalGraph();
+  if (local) {
+    mountTmap(TMap, local, M, '真实路网（随项目发布的预烘焙数据）');
+    return;
+  }
+
+  const graph = await M.buildOsmRoadGraph({ onProgress: progress });
+  M.bakeGraph(graph);
+  mountTmap(TMap, graph, M, `真实路网（道路 ${graph.stats.ways} 段，绿地 ${graph.stats.parks}，商业体 ${graph.stats.malls}）`);
+}
+
 // 腾讯真实底图 + 示意路网：不消耗 WebServiceAPI 配额
 async function startGrid() {
   beginLoading('正在加载腾讯底图…');
@@ -134,25 +162,37 @@ const guard = (fn) => () => {
 };
 
 boot.querySelector('[data-retry]').addEventListener('click',
-  guard(() => {
+  guard(async () => {
     cacheClear();
-    return startTencent({ useBaked: false });
+    try {
+      await startTencent({ useBaked: false });
+    } catch (err) {
+      console.warn('[饿了喵] 腾讯步行路线不可用，改用 OpenStreetMap 真实路网：', (err && err.message) || err);
+      await startOsm({ useBaked: false });
+    }
   }),
 );
 boot.querySelector('[data-grid]').addEventListener('click', guard(startGrid));
 boot.querySelector('[data-greybox]').addEventListener('click', guard(startGreybox));
 
 if (hasKey()) {
-  // 真实路网不可用时自动退到「腾讯底图 + 示意路网」，底图始终是腾讯地图
-  startTencent().catch((err) => {
-    const msg = (err && err.message) || String(err);
-    console.warn('[饿了喵] 真实路网不可用，改用腾讯底图 + 示意路网：', msg);
-    fallbackNote = `当前为「腾讯底图 + 示意路网」：${msg}配额恢复后刷新页面即可自动换成真实步行路网。`;
-    startGrid().catch((e2) => {
-      fallbackNote = '';
-      fail(err, `示意路网也未能启动：${(e2 && e2.message) || e2}`);
+  // 路网优先级：腾讯步行路线规划 → OpenStreetMap 真实道路 → 示意网格。底图始终是腾讯地图。
+  startTencent()
+    .catch(async (err) => {
+      const msg = (err && err.message) || String(err);
+      console.warn('[饿了喵] 腾讯步行路线不可用，改用 OpenStreetMap 真实路网：', msg);
+      progress('腾讯步行路线不可用，正在改用真实道路数据…');
+      await startOsm();
+    })
+    .catch((err2) => {
+      const msg2 = (err2 && err2.message) || String(err2);
+      console.warn('[饿了喵] 真实路网不可用，改用腾讯底图 + 示意路网：', msg2);
+      fallbackNote = `当前为「腾讯底图 + 示意路网」，路线与真实道路不完全重合：${msg2}`;
+      startGrid().catch((e3) => {
+        fallbackNote = '';
+        fail(err2, `示意路网也未能启动：${(e3 && e3.message) || e3}`);
+      });
     });
-  });
 } else {
   console.info(`[饿了喵] ${keyHint()} 使用灰盒街区模式。`);
   try {

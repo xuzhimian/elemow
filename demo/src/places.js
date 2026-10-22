@@ -49,6 +49,10 @@ export const PLACE_BY_ID = Object.fromEntries(PLACES.map((p) => [p.id, p]));
 export const SHOP_IDS = SHOPS.map((s) => s.id);
 export const CUSTOMER_IDS = CUSTOMERS.map((c) => c.id);
 
+// 上面写死的名字是「默认名」：灰盒与示意路网模式用它，真实地图模式会按功能属性覆盖。
+// 单独存一份，保证 bindAnchors 可以重复调用而不残留上一个模式的命名。
+const DEFAULT_NAMES = Object.fromEntries(PLACES.map((p) => [p.id, p.name]));
+
 // 真实地图模式下可以按片区重命名（保持虚构），例如把「西町写字楼」换成同风格的名字
 export function bindAnchors(anchors) {
   for (const [id, a] of Object.entries(anchors || {})) {
@@ -58,8 +62,9 @@ export function bindAnchors(anchors) {
     p.pos = a.pos || null;
     if (a.off) p.off = a.off;
     if (a.offScale != null) p.offScale = a.offScale;
-    if (a.realName) p.realName = a.realName;
-    if (a.name) p.name = a.name;
+    p.realName = a.realName || null;
+    // 没给 name 的模式（灰盒 / 示意路网）必须回到默认名，否则会沿用上一次的属性化命名
+    p.name = a.name || DEFAULT_NAMES[id];
   }
 }
 

@@ -242,6 +242,68 @@ svg {
 #map canvas {
   display: block;
 }
+
+/* ---------- 治愈画风滤镜（只改渲染，不动任何地图数据） ----------
+
+   目标：把腾讯底图的「导航配色」（高饱和蓝水体、纯白道路、鲜绿地块）压成
+   与 art/ 里水彩立绘同一调性的「低饱和暖纸色」，让猫和地图像画在同一张纸上。
+
+   三层叠加，由下到上：
+     1) #map canvas 的 filter —— 底图调色（canvas 内也含猫咪立绘，实测无劣化，
+        且色调统一后猫与底图更融合）
+     2) #map::before     —— 晕影，四角轻压暗，把视线收到中心
+     3) #map::after      —— 纸纹，multiply 混合，给平滑矢量面补「纸」的颗粒
+
+   层级刻意放在 998/999：压住 canvas，但低于 SDK 事件层(1000)、
+   地点标签层(.label-layer 1001) 与雨层(1002)，所以标签与猫咪头像始终清晰可读，
+   HUD（图例/比例尺，在 #map 之外）也不受影响。
+
+   调参入口全部收口到下面的变量；把 --cozy-* 调成中性值即可整体关闭。 */
+#map-wrap {
+  --cozy-saturate: 0.66; /* 压饱和：越小越淡，0.5 以下会丢掉公园的绿意 */
+  --cozy-sepia: 0.14; /* 暖褐调：0.2 以上开始像旧照片 */
+  --cozy-brightness: 1.045;
+  --cozy-contrast: 0.93; /* 降对比：水彩不该有锐利的黑白反差 */
+  --cozy-grain: 0.14; /* 纸纹强度：0.18 以上会显脏 */
+  --cozy-vignette: 0.15;
+}
+
+/* 滤镜只在真实地图模式启用：灰盒街区本身就是暖米色示意图，再染会过。
+   加 .plain 可一键回到原始配色，便于对照与排查。 */
+#map-wrap.cozy-tmap:not(.plain) #map canvas {
+  filter: saturate(var(--cozy-saturate)) sepia(var(--cozy-sepia)) brightness(var(--cozy-brightness))
+    contrast(var(--cozy-contrast));
+}
+
+#map-wrap.cozy:not(.plain) #map::before,
+#map-wrap.cozy:not(.plain) #map::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 晕影 */
+#map-wrap.cozy:not(.plain) #map::before {
+  z-index: 998;
+  background:
+    radial-gradient(
+      ellipse 118% 96% at 50% 46%,
+      rgba(0, 0, 0, 0) 56%,
+      rgba(124, 100, 72, var(--cozy-vignette)) 100%
+    ),
+    linear-gradient(180deg, rgba(255, 248, 233, 0.12), rgba(255, 244, 226, 0.04));
+}
+
+/* 纸纹：SVG feTurbulence 程序化生成，不引入二进制素材 */
+#map-wrap.cozy:not(.plain) #map::after {
+  z-index: 999;
+  opacity: var(--cozy-grain);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
 .label-layer {
   position: absolute;
   top: 0;
@@ -295,7 +357,8 @@ svg {
 .map-dot.box {
   background: #c9a67c;
   border: 2px solid #8b6f55;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  /* 暖褐投影：纯黑阴影在水彩纸底上会显得「数码感」 */
+  box-shadow: 0 1px 3px rgba(104, 78, 52, 0.3);
 }
 .map-dot.cross {
   width: 22px;
@@ -471,7 +534,7 @@ svg {
   border: 3px solid var(--cat);
   background: var(--paper);
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(104, 78, 52, 0.26);
   transition: transform 0.15s;
 }
 .cm-avatar img {
@@ -481,7 +544,7 @@ svg {
 }
 .cat-marker.selected .cm-avatar {
   transform: scale(1.18);
-  box-shadow: 0 0 0 4px rgba(255, 253, 249, 0.9), 0 3px 10px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 0 4px rgba(255, 253, 249, 0.9), 0 3px 10px rgba(104, 78, 52, 0.32);
 }
 .cat-marker.selected {
   z-index: 100001 !important;
@@ -2130,6 +2193,13 @@ blockquote small {
 
 @media (prefers-reduced-motion: reduce) {
   .tc-cats img, .modal-card { animation: none; }
+  /* 地图层的装饰性动效：雨丝滚动、事件猫咪呼吸、提示条弹入。
+     关掉动画但保留静态外观，信息不丢失。 */
+  .tmap-rain,
+  .cat-marker.event .cm-avatar,
+  #hint.pop { animation: none; }
+  /* 加载指示器传达状态，不能直接去掉，放慢到不易引发不适的速度 */
+  #boot .boot-spin { animation-duration: 2.4s; }
 }
 
 /* Generated event films: their own clock, so delivery remains paused. */

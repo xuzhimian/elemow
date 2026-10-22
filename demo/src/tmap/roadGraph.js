@@ -18,7 +18,7 @@ const PARK_BIRD_M = 140; // 公园周边视为观鸟点
 const MIN_NODES = 60;
 
 export class TmapGraph extends RoadGraph {
-  // source: 'tencent' = 真实步行路网；'grid' = 腾讯底图 + 示意网格路网
+  // source: 'tencent' = 腾讯步行路线规划；'osm' = 真实道路中心线；'grid' = 示意网格
   constructor(source = 'tencent') {
     super({ unitM: 1, sideNames: { w: '西町', e: '东町' }, complexDegree: 4, shelterPenalty: 1.45 });
     this.mode = 'tmap';
@@ -28,10 +28,24 @@ export class TmapGraph extends RoadGraph {
     this.slot = { spacing: 2.4, front: 5 };
     this.shelterNote = '沿街商业体附近有连续雨棚，不受影响。';
     this.shelterRouteNote = '优先经过沿街雨棚路段 · 可能绕行';
-    const road = source === 'tencent' ? '路网来自腾讯步行路线规划' : '路网为示意网格（未接入真实路网数据）';
-    this.mapNote = source === 'tencent' ? '腾讯地图真实街区（店名与顾客名为虚构）' : '腾讯地图底图 + 示意路网';
-    this.bottleneckNote = source === 'tencent' ? '真实主干道与过街点瓶颈' : '主干道只有两处过街点';
-    this.attribution = `地图底图 © 腾讯位置服务 · ${road} · 营业区域 ${areaSummary()} · 店名与顾客名为虚构 · 时间为游戏模拟时间`;
+    const road = {
+      tencent: '路网来自腾讯步行路线规划',
+      osm: '路网来自 OpenStreetMap 真实道路数据（© OpenStreetMap 贡献者，ODbL）',
+      grid: '路网为示意网格（未接入真实路网数据）',
+    };
+    const note = {
+      tencent: '腾讯地图真实街区（店名与顾客名为虚构）',
+      osm: '腾讯底图 + 真实路网（店名与顾客名为虚构）',
+      grid: '腾讯地图底图 + 示意路网',
+    };
+    const bottleneck = {
+      tencent: '真实主干道与过街点瓶颈',
+      osm: '真实主干道与过街点瓶颈',
+      grid: '主干道只有两处过街点',
+    };
+    this.mapNote = note[source] || note.grid;
+    this.bottleneckNote = bottleneck[source] || bottleneck.grid;
+    this.attribution = `地图底图 © 腾讯位置服务 · ${road[source] || road.grid} · 营业区域 ${areaSummary()} · 店名与顾客名为虚构 · 时间为游戏模拟时间`;
     this.stats = { routes: 0, cached: 0, failed: 0 };
   }
 
@@ -330,7 +344,10 @@ export function serializeGraph(graph) {
     box: [...graph.boxNodes],
     bird: [...graph.birdNodes],
     anchors: Object.fromEntries(
-      PLACES.map((p) => [p.id, { node: p.node, pos: p.pos || null, off: p.off, offScale: p.offScale, realName: p.realName || null }]),
+      PLACES.map((p) => [
+        p.id,
+        { node: p.node, pos: p.pos || null, off: p.off, offScale: p.offScale, name: p.name, realName: p.realName || null },
+      ]),
     ),
   };
 }
@@ -338,7 +355,7 @@ export function serializeGraph(graph) {
 export function deserializeGraph(data) {
   if (!data || data.v !== 1 || !Array.isArray(data.nodes) || !Array.isArray(data.edges)) throw new Error('路网数据格式不正确。');
   if (data.area !== AREA_TAG()) throw new Error('路网数据与当前营业区域不匹配。');
-  const g = new TmapGraph(data.source === 'grid' ? 'grid' : 'tencent');
+  const g = new TmapGraph(['grid', 'osm', 'tencent'].includes(data.source) ? data.source : 'tencent');
   data.nodes.forEach(([id, x, z, side]) => g.addNode(String(id), Number(x), Number(z), { side: side === 'e' ? 'e' : 'w' }));
   data.edges.forEach(([a, b, cov, np]) => g.addEdge(String(a), String(b), { covered: !!cov, noPenalty: !!np }));
   (data.box || []).forEach((id) => g.nodes.has(id) && g.boxNodes.add(id));
@@ -368,5 +385,19 @@ export function bakeGraph(graph) {
     cacheSet(BAKE_KEY, serializeGraph(graph));
   } catch {
     /* 容量不足时忽略 */
+  }
+}
+
+// 随项目发布的预烘焙真实路网（demo/public/road-network.json）：
+// 有了它就不需要任何在线接口，且每次启动结果一致。
+export async function loadLocalGraph() {
+  try {
+    const res = await fetch(`${import.meta.env.BASE_URL || '/'}road-network.json`, { cache: 'no-cache' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return deserializeGraph(data);
+  } catch (err) {
+    if (err && /区域|格式|锚点/.test(err.message || '')) console.warn('[饿了喵] 预烘焙路网不可用：', err.message);
+    return null;
   }
 }

@@ -63,6 +63,27 @@ export const AREA_LOCAL = (() => {
   };
 })();
 
+// 地图可视边界：把营业区域按容器宽高比补齐成一个不小于它的矩形。
+//
+// 腾讯地图的 boundary 是「不允许看到边界外」的硬约束（cover 语义），直接拿营业区域当 boundary 时，
+// 一旦区域宽高比与容器不一致，较长的一边就会被挤出容器——本区域是 1.79 km × 0.86 km（约 2.08），
+// 容器约 1.24，于是左右各有三百多像素的地点永远看不到。补齐后整个营业区域必定完整可见。
+//
+// padM：四周额外留出的米数，给地点标签（向上 140% 偏移）与比例尺等覆盖物让位。
+export function viewBounds(aspect, padM = 0) {
+  const cx = (AREA_LOCAL.minX + AREA_LOCAL.maxX) / 2;
+  const cz = (AREA_LOCAL.minZ + AREA_LOCAL.maxZ) / 2;
+  let w = AREA_LOCAL.width + padM * 2;
+  let h = AREA_LOCAL.height + padM * 2;
+  const r = Number.isFinite(aspect) && aspect > 0 ? aspect : w / h;
+  if (w / h > r) h = w / r;
+  else w = h * r;
+  // 本地坐标 z 向南为正：z 大的一侧是南（sw），z 小的一侧是北（ne）
+  const sw = frame.toLngLat({ x: cx - w / 2, z: cz + h / 2 });
+  const ne = frame.toLngLat({ x: cx + w / 2, z: cz - h / 2 });
+  return { sw, ne, width: w, height: h };
+}
+
 export function insideArea(ll, pad = 0) {
   return ll.lng >= AREA.sw.lng - pad && ll.lng <= AREA.ne.lng + pad && ll.lat >= AREA.sw.lat - pad && ll.lat <= AREA.ne.lat + pad;
 }

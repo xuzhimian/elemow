@@ -106,6 +106,10 @@ export class World {
     container.appendChild(this.labelRenderer.domElement);
     this.labelRoot = this.labelRenderer.domElement;
 
+    // 纸纹与晕影（不加 cozy-tmap：灰盒本身就是暖米色示意图，再染色会过）
+    const wrap = container.closest('#map-wrap');
+    if (wrap) wrap.classList.add('cozy');
+
     this.scene = new THREE.Scene();
     this.bg = new THREE.Color(C.ground);
     this.scene.background = this.bg;
